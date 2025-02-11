@@ -83,12 +83,17 @@ class BrightRetrieval(MultilingualTask, AbsTaskRetrieval):
         }
 
         for domain in domains:
-            domain_corpus = datasets.load_dataset(
-                path, "documents", split=domain, cache_dir=cache_dir, revision=revision
-            )
             examples = datasets.load_dataset(
                 path, "examples", split=domain, cache_dir=cache_dir, revision=revision
             )
+            domain_corpus = datasets.load_dataset(
+                path, "documents", split=domain, cache_dir=cache_dir, revision=revision
+            )
+            corpus[domain]["standard"] = {
+                e["id"]: {"text": e["content"]} for e in domain_corpus
+            }
+            queries[domain]["standard"] = {e["id"]: e["query"] for e in examples}
+            relevant_docs[domain]["standard"] = {}
             if domain in DOMAINS_LONG:
                 domain_corpus_long = datasets.load_dataset(
                     path,
@@ -97,29 +102,23 @@ class BrightRetrieval(MultilingualTask, AbsTaskRetrieval):
                     cache_dir=cache_dir,
                     revision=revision,
                 )
-            corpus[domain]["standard"] = {
-                e["id"]: {"text": e["content"]} for e in domain_corpus
-            }
-            if domain in DOMAINS_LONG:
                 corpus[domain]["long"] = {
                     e["id"]: {"text": e["content"]} for e in domain_corpus_long
                 }
-            queries[domain]["standard"] = queries[domain]["long"] = {
-                e["id"]: e["query"] for e in examples
-            }
-            relevant_docs[domain]["standard"] = {}
-            relevant_docs[domain]["long"] = {}
+                queries[domain]["long"] = queries[domain]["standard"]
+                relevant_docs[domain]["long"] = {}
 
             for e in examples:
                 qid = e["id"]
                 gold_ids = e["gold_ids"]
-                gold_ids_long = e["gold_ids_long"]
                 relevant_docs[domain]["standard"][qid] = defaultdict(dict)
-                relevant_docs[domain]["long"][qid] = defaultdict(dict)
                 for gid in gold_ids:
                     relevant_docs[domain]["standard"][qid].update({gid: 1})
-                for gid in gold_ids_long:
-                    relevant_docs[domain]["long"][qid].update({gid: 1})
+                if domain in DOMAINS_LONG:
+                    gold_ids_long = e["gold_ids_long"]
+                    relevant_docs[domain]["long"][qid] = defaultdict(dict)
+                    for gid in gold_ids_long:
+                        relevant_docs[domain]["long"][qid].update({gid: 1})
 
         corpus = datasets.DatasetDict(corpus)
         queries = datasets.DatasetDict(queries)
