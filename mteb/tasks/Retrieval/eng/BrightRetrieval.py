@@ -76,10 +76,10 @@ class BrightRetrieval(MultilingualTask, AbsTaskRetrieval):
         cache_dir: str = None,
         revision: str = None,
     ):
-        corpus = {domain: {split: None for split in eval_splits} for domain in DOMAINS}
-        queries = {domain: {split: None for split in eval_splits} for domain in DOMAINS}
+        corpus = {domain: {split: {} for split in eval_splits} for domain in DOMAINS}
+        queries = {domain: {split: {} for split in eval_splits} for domain in DOMAINS}
         relevant_docs = {
-            domain: {split: None for split in eval_splits} for domain in DOMAINS
+            domain: {split: {} for split in eval_splits} for domain in DOMAINS
         }
 
         for domain in domains:

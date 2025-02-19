@@ -341,6 +341,9 @@ class AbsTaskRetrieval(AbsTask):
                     self.queries[hf_subset][split],
                     self.relevant_docs[hf_subset][split],
                 )
+            if len(queries)==0:
+                logger.warning(f"No queries found for subset {hf_subset}")
+                continue
             scores[hf_subset] = self._evaluate_subset(
                 retriever, corpus, queries, relevant_docs, hf_subset, **kwargs
             )

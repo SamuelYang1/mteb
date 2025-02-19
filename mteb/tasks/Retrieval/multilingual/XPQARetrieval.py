@@ -168,7 +168,7 @@ class XPQARetrieval(AbsTaskRetrieval, MultilingualTask):
 
 def _load_dataset_csv(path: str, revision: str, eval_splits: list[str]):
     data_files = {
-        eval_split: f"https://huggingface.co/datasets/{path}/resolve/{revision}/{eval_split}.csv"
+        eval_split: f"https://hf-mirror.com/datasets/{path}/resolve/{revision}/{eval_split}.csv"
         for eval_split in eval_splits
     }
     dataset = datasets.load_dataset("csv", data_files=data_files)
